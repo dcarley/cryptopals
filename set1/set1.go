@@ -206,3 +206,8 @@ func HexToBase64(text []byte) ([]byte, error) {
 
 	return Base64Encode(raw), nil
 }
+
+// FixedKeyXOR encrypts some text against a key of the same size.
+func FixedKeyXOR(text, key []byte) ([]byte, error) {
+	return []byte{}, nil
+}

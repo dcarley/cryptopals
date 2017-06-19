@@ -136,4 +136,17 @@ var _ = Describe("Set1", func() {
 			})
 		})
 	})
+
+	Describe("Challenge2", func() {
+		Describe("FixedKeyXOR", func() {
+			It("should convert example", func() {
+				xor, err := FixedKeyXOR(
+					[]byte("1c0111001f010100061a024b53535009181c"),
+					[]byte("686974207468652062756c6c277320657965"),
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(xor).To(Equal([]byte("746865206b696420646f6e277420706c6179")))
+			})
+		})
+	})
 })
