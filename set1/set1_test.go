@@ -147,6 +147,15 @@ var _ = Describe("Set1", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(xor).To(Equal([]byte("746865206b696420646f6e277420706c6179")))
 			})
+
+			It("should error on unequal lengths", func() {
+				xor, err := FixedKeyXOR(
+					[]byte("12345678"),
+					[]byte("1234"),
+				)
+				Expect(err).To(MatchError("text and key must be same size: 8 != 4"))
+				Expect(xor).To(Equal([]byte{}))
+			})
 		})
 	})
 })

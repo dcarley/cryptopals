@@ -207,7 +207,26 @@ func HexToBase64(text []byte) ([]byte, error) {
 	return Base64Encode(raw), nil
 }
 
-// FixedKeyXOR encrypts some text against a key of the same size.
+// FixedKeyXOR encrypts some text against a key of the same size. All inputs
+// and outputs are hex encoded.
 func FixedKeyXOR(text, key []byte) ([]byte, error) {
-	return []byte{}, nil
+	if len(text) != len(key) {
+		return []byte{}, fmt.Errorf("text and key must be same size: %d != %d", len(text), len(key))
+	}
+
+	textRaw, err := HexDecode(text)
+	if err != nil {
+		return []byte{}, err
+	}
+	keyRaw, err := HexDecode(key)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	xor := make([]byte, len(textRaw))
+	for i := 0; i < len(xor); i++ {
+		xor[i] = textRaw[i] ^ keyRaw[i]
+	}
+
+	return HexEncode(xor), nil
 }
