@@ -13,11 +13,11 @@ func hexToDec(char byte) (byte, error) {
 	//   "a" and "A" become 10
 	switch {
 	case char >= '0' && char <= '9':
-		val = char - 48
+		val = char - '0'
 	case char >= 'A' && char <= 'F':
-		val = char - 55
+		val = char - 'A' + 10
 	case char >= 'a' && char <= 'f':
-		val = char - 87
+		val = char - 'a' + 10
 	default:
 		return 0, fmt.Errorf("invalid hex character: %s", []byte{char})
 	}
