@@ -30,6 +30,24 @@ var _ = Describe("Set1", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(decoded).To(Equal(input))
 			})
+
+			It("should handle uppercase and lowercase alphas", func() {
+				decoded, err := HexDecode([]byte("6a6B6c6D"))
+				Expect(err).ToNot(HaveOccurred())
+				Expect(decoded).To(Equal([]byte("jklm")))
+			})
+
+			It("should return an error for invalid alphas", func() {
+				decoded, err := HexDecode([]byte("6g"))
+				Expect(err).To(MatchError("invalid hex character: g"))
+				Expect(decoded).To(Equal([]byte{}))
+			})
+
+			It("should return an error on odd input sizes", func() {
+				decoded, err := HexDecode([]byte("abc"))
+				Expect(err).To(MatchError("input must be an even size"))
+				Expect(decoded).To(Equal([]byte{}))
+			})
 		})
 	})
 })

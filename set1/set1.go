@@ -2,31 +2,50 @@ package set1
 
 import (
 	"encoding/base64"
+	"fmt"
 )
 
 // hexToDec is used to lookup a single decimal value in hex.
-func hexToDec(char byte) byte {
-	// subtract ASCII decimal codes to convert "0" into 0 and "a" into 10.
+func hexToDec(char byte) (byte, error) {
+	var val byte
+	// subtract ASCII decimal codes so that:
+	//   "0" becomes 0
+	//   "a" and "A" become 10
 	switch {
 	case char >= '0' && char <= '9':
-		return char - 48
+		val = char - 48
+	case char >= 'A' && char <= 'F':
+		val = char - 55
 	case char >= 'a' && char <= 'f':
-		return char - 87
+		val = char - 87
+	default:
+		return 0, fmt.Errorf("invalid hex character: %s", []byte{char})
 	}
 
-	return 0
+	return val, nil
 }
 
 // HexDecode decodes a hexidecimal byte slice to a decimal byte slice
 func HexDecode(text []byte) ([]byte, error) {
+	if len(text)%2 != 0 {
+		return []byte{}, fmt.Errorf("input must be an even size")
+	}
+
 	// output is always half the size of input
 	out := make([]byte, len(text)/2)
 
 	// based on this article:
 	// https://learn.sparkfun.com/tutorials/hexadecimal#converting-tofrom-decimal
 	for i := 0; i < len(out); i++ {
-		firstDigit := hexToDec(text[i*2])
-		secondDigit := hexToDec(text[i*2+1])
+		firstDigit, err := hexToDec(text[i*2])
+		if err != nil {
+			return []byte{}, err
+		}
+
+		secondDigit, err := hexToDec(text[i*2+1])
+		if err != nil {
+			return []byte{}, err
+		}
 
 		out[i] = firstDigit*16 + secondDigit
 	}
