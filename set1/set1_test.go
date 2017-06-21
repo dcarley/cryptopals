@@ -5,6 +5,8 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"encoding/hex"
 )
 
 var _ = Describe("Set1", func() {
@@ -14,6 +16,19 @@ var _ = Describe("Set1", func() {
 				b64, err := HexToBase64([]byte("49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d"))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(b64).To(Equal([]byte("SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t")))
+			})
+		})
+
+		Describe("HexDecode", func() {
+			It("should decode hex to decimal byte slice", func() {
+				input := []byte("hello gopher")
+
+				encoded := make([]byte, hex.EncodedLen(len(input)))
+				hex.Encode(encoded, input)
+
+				decoded, err := HexDecode(encoded)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(decoded).To(Equal(input))
 			})
 		})
 	})
