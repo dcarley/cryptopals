@@ -49,5 +49,16 @@ var _ = Describe("Set1", func() {
 				Expect(decoded).To(Equal([]byte{}))
 			})
 		})
+
+		Describe("HexEncode", func() {
+			It("should encode decimal to hex byte slice", func() {
+				input := []byte("hello gopher")
+
+				encoded := make([]byte, hex.EncodedLen(len(input)))
+				hex.Encode(encoded, input)
+
+				Expect(HexEncode(input)).To(Equal(encoded))
+			})
+		})
 	})
 })

@@ -5,6 +5,43 @@ import (
 	"fmt"
 )
 
+// decToHex is used to lookup a single hex value in decimal.
+var decToHex = map[byte]byte{
+	0:  '0',
+	1:  '1',
+	2:  '2',
+	3:  '3',
+	4:  '4',
+	5:  '5',
+	6:  '6',
+	7:  '7',
+	8:  '8',
+	9:  '9',
+	10: 'a',
+	11: 'b',
+	12: 'c',
+	13: 'd',
+	14: 'e',
+	15: 'f',
+}
+
+// Encodes a decimal byte slice to a hexidecimal byte slice
+func HexEncode(text []byte) []byte {
+	// output is always twice the size of input
+	out := make([]byte, len(text)*2)
+
+	// based on this article:
+	// https://learn.sparkfun.com/tutorials/hexadecimal#converting-tofrom-decimal
+	for i, char := range text {
+		secondDigit := decToHex[char%16]
+		firstDigit := decToHex[char/16]
+		out[i*2] = firstDigit
+		out[i*2+1] = secondDigit
+	}
+
+	return out
+}
+
 // hexToDec is used to lookup a single decimal value in hex.
 func hexToDec(char byte) (byte, error) {
 	var val byte
