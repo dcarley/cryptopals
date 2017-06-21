@@ -5,23 +5,16 @@ import (
 )
 
 // hexToDec is used to lookup a single decimal value in hex.
-var hexToDec = map[byte]byte{
-	'0': 0,
-	'1': 1,
-	'2': 2,
-	'3': 3,
-	'4': 4,
-	'5': 5,
-	'6': 6,
-	'7': 7,
-	'8': 8,
-	'9': 9,
-	'a': 10,
-	'b': 11,
-	'c': 12,
-	'd': 13,
-	'e': 14,
-	'f': 15,
+func hexToDec(char byte) byte {
+	// subtract ASCII decimal codes to convert "0" into 0 and "a" into 10.
+	switch {
+	case char >= '0' && char <= '9':
+		return char - 48
+	case char >= 'a' && char <= 'f':
+		return char - 87
+	}
+
+	return 0
 }
 
 // HexDecode decodes a hexidecimal byte slice to a decimal byte slice
@@ -32,8 +25,8 @@ func HexDecode(text []byte) ([]byte, error) {
 	// based on this article:
 	// https://learn.sparkfun.com/tutorials/hexadecimal#converting-tofrom-decimal
 	for i := 0; i < len(out); i++ {
-		firstDigit := hexToDec[text[i*2]]
-		secondDigit := hexToDec[text[i*2+1]]
+		firstDigit := hexToDec(text[i*2])
+		secondDigit := hexToDec(text[i*2+1])
 
 		out[i] = firstDigit*16 + secondDigit
 	}
