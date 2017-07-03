@@ -88,26 +88,47 @@ const sixBitsMax = 0x3F
 // Base64Encode encodes a byte slice into a base64 byte slice
 func Base64Encode(text []byte) []byte {
 	// 4 bytes out for every 3 bytes in
-	out := make([]byte, len(text)/3*4)
+	size := len(text) / 3 * 4
+	// allow for padding if input is not divisible by 3
+	if len(text)%3 != 0 {
+		size += 4
+	}
+	out := make([]byte, size)
 
 	for i := 0; i < len(text); i += 3 {
 		// convert three 8bit characters into one 24bit value by:
 		// - converting from byte (int8) to int32
 		// - bit shifting to the left, to pad least significant bits, so that they don't overlap
 		// - bit ORing to combine the values into one
+		// - ignore the last two characters if we've reached the end of the input
 		combined := int32(text[i]) << 16
-		combined |= int32(text[i+1]) << 8
-		combined |= int32(text[i+2]) << 0
+		if i+1 < len(text) {
+			combined |= int32(text[i+1]) << 8
+		}
+		if i+2 < len(text) {
+			combined |= int32(text[i+2]) << 0
+		}
 
 		// split the 24bit value into four 6bit values by:
 		// - bit shifting to the right, so the least significant 6bits are what we want
 		// - bit ANDing against 6bits of binary 1s to extract the least significant 6bits
 		// - looking up the appropriate base64 character for the value
+		// - pad the last two characters if we've reached the end of the input
 		outIndex := i / 3 * 4
 		out[outIndex] = decToBase64[combined>>18&sixBitsMax]
 		out[outIndex+1] = decToBase64[combined>>12&sixBitsMax]
-		out[outIndex+2] = decToBase64[combined>>6&sixBitsMax]
-		out[outIndex+3] = decToBase64[combined>>0&sixBitsMax]
+
+		if i+1 < len(text) {
+			out[outIndex+2] = decToBase64[combined>>6&sixBitsMax]
+		} else {
+			out[outIndex+2] = '='
+		}
+
+		if i+2 < len(text) {
+			out[outIndex+3] = decToBase64[combined>>0&sixBitsMax]
+		} else {
+			out[outIndex+3] = '='
+		}
 	}
 
 	return out

@@ -71,6 +71,26 @@ var _ = Describe("Set1", func() {
 
 				Expect(Base64Encode(input)).To(Equal(encoded))
 			})
+
+			It("should encode text to base64 with one character padding", func() {
+				input := []byte("hello gophers")
+				Expect(len(input) % 3).To(Equal(1))
+
+				encoded := make([]byte, base64.StdEncoding.EncodedLen(len(input)))
+				base64.StdEncoding.Encode(encoded, input)
+
+				Expect(Base64Encode(input)).To(Equal(encoded))
+			})
+
+			It("should encode text to base64 with two character padding", func() {
+				input := []byte("hello gophers!")
+				Expect(len(input) % 3).To(Equal(2))
+
+				encoded := make([]byte, base64.StdEncoding.EncodedLen(len(input)))
+				base64.StdEncoding.Encode(encoded, input)
+
+				Expect(Base64Encode(input)).To(Equal(encoded))
+			})
 		})
 	})
 })
