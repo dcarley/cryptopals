@@ -1,7 +1,6 @@
 package set1
 
 import (
-	"encoding/base64"
 	"fmt"
 )
 
@@ -76,6 +75,44 @@ func HexDecode(text []byte) ([]byte, error) {
 	return out, nil
 }
 
+// decToBase64 is used to lookup base64 characters using zero-indexed 6bit
+// values
+const decToBase64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+// sixBitsMax is a 6bit value of all binary 1s:
+//	- bin: 111111
+//	- dec: 63
+//	- hex: 0x3F
+const sixBitsMax = 0x3F
+
+// Base64Encode encodes a byte slice into a base64 byte slice
+func Base64Encode(text []byte) []byte {
+	// 4 bytes out for every 3 bytes in
+	out := make([]byte, len(text)/3*4)
+
+	for i := 0; i < len(text); i += 3 {
+		// convert three 8bit characters into one 24bit value by:
+		// - converting from byte (int8) to int32
+		// - bit shifting to the left, to pad least significant bits, so that they don't overlap
+		// - bit ORing to combine the values into one
+		combined := int32(text[i]) << 16
+		combined |= int32(text[i+1]) << 8
+		combined |= int32(text[i+2]) << 0
+
+		// split the 24bit value into four 6bit values by:
+		// - bit shifting to the right, so the least significant 6bits are what we want
+		// - bit ANDing against 6bits of binary 1s to extract the least significant 6bits
+		// - looking up the appropriate base64 character for the value
+		outIndex := i / 3 * 4
+		out[outIndex] = decToBase64[combined>>18&sixBitsMax]
+		out[outIndex+1] = decToBase64[combined>>12&sixBitsMax]
+		out[outIndex+2] = decToBase64[combined>>6&sixBitsMax]
+		out[outIndex+3] = decToBase64[combined>>0&sixBitsMax]
+	}
+
+	return out
+}
+
 // HexToBase64 converts hexidecimal encoded text to base64.
 func HexToBase64(text []byte) ([]byte, error) {
 	raw, err := HexDecode(text)
@@ -83,8 +120,5 @@ func HexToBase64(text []byte) ([]byte, error) {
 		return []byte{}, err
 	}
 
-	b64 := make([]byte, base64.StdEncoding.EncodedLen(len(raw)))
-	base64.StdEncoding.Encode(b64, raw)
-
-	return b64, nil
+	return Base64Encode(raw), nil
 }

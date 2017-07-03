@@ -6,6 +6,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"encoding/base64"
 	"encoding/hex"
 )
 
@@ -58,6 +59,17 @@ var _ = Describe("Set1", func() {
 				hex.Encode(encoded, input)
 
 				Expect(HexEncode(input)).To(Equal(encoded))
+			})
+		})
+
+		Describe("Base64Encode", func() {
+			It("should encode text to base64", func() {
+				input := []byte("hello gopher")
+
+				encoded := make([]byte, base64.StdEncoding.EncodedLen(len(input)))
+				base64.StdEncoding.Encode(encoded, input)
+
+				Expect(Base64Encode(input)).To(Equal(encoded))
 			})
 		})
 	})
