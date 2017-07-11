@@ -2,6 +2,7 @@ package set1
 
 import (
 	"fmt"
+	"strings"
 )
 
 // decToHex is used to lookup a single hex value in decimal.
@@ -132,6 +133,40 @@ func Base64Encode(text []byte) []byte {
 	}
 
 	return out
+}
+
+// eightBitsMax is a 8bit value of all binary 1s:
+//	- bin: 11111111
+//	- dec: 255
+//	- hex: 0xFF
+const eightBitsMax = 0xFF
+
+// Base64Decode decodes a base64 byte slice into an byte slice
+func Base64Decode(text []byte) ([]byte, error) {
+	// 4 bytes out for every 3 bytes in
+	out := make([]byte, len(text)/4*3)
+
+	for i := 0; i < len(text); i += 4 {
+		// convert four 6bit characters into one 24bit value by:
+		// - looking up the appropriate index for the base64 character
+		// - bit shifting to the left, to pad least significant bits, so that they don't overlap
+		// - bit ORing to combine the values into one
+		combined := strings.IndexByte(decToBase64, text[i])<<18 |
+			strings.IndexByte(decToBase64, text[i+1])<<12 |
+			strings.IndexByte(decToBase64, text[i+2])<<6 |
+			strings.IndexByte(decToBase64, text[i+3])<<0
+
+		// split the 24bit value into three 8bit values by:
+		// - bit shifting to the right, so the least significant 8bits are what we want
+		// - bit ANDing against 8bits of binary 1s to extract the least significant 8bits
+		// - converting to byte so that we get the appropriate ASCII code
+		outIndex := i / 4 * 3
+		out[outIndex] = byte(combined >> 16 & eightBitsMax)
+		out[outIndex+1] = byte(combined >> 8 & eightBitsMax)
+		out[outIndex+2] = byte(combined >> 0 & eightBitsMax)
+	}
+
+	return out, nil
 }
 
 // HexToBase64 converts hexidecimal encoded text to base64.

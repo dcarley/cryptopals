@@ -62,6 +62,19 @@ var _ = Describe("Set1", func() {
 			})
 		})
 
+		Describe("Base64Decode", func() {
+			It("should decode base64 to text", func() {
+				input := []byte("hello gopher")
+
+				encoded := make([]byte, base64.StdEncoding.EncodedLen(len(input)))
+				base64.StdEncoding.Encode(encoded, input)
+
+				decoded, err := Base64Decode(encoded)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(decoded).To(Equal(input))
+			})
+		})
+
 		Describe("Base64Encode", func() {
 			It("should encode text to base64", func() {
 				input := []byte("hello gopher")
