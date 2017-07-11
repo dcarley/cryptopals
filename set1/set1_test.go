@@ -73,6 +73,12 @@ var _ = Describe("Set1", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(decoded).To(Equal(input))
 			})
+
+			It("should return an error for invalid base64 characters", func() {
+				decoded, err := Base64Decode([]byte("abc!def"))
+				Expect(err).To(MatchError("invalid base64 character: !"))
+				Expect(decoded).To(Equal([]byte{}))
+			})
 		})
 
 		Describe("Base64Encode", func() {

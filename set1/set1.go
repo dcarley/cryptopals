@@ -2,7 +2,6 @@ package set1
 
 import (
 	"fmt"
-	"strings"
 )
 
 // decToHex is used to lookup a single hex value in decimal.
@@ -135,6 +134,24 @@ func Base64Encode(text []byte) []byte {
 	return out
 }
 
+// base64ToDec is used to lookup a zero-indexed value for a base64 character
+func base64ToDec(char byte) (int32, error) {
+	switch {
+	case char >= 'A' && char <= 'Z':
+		return int32(char) - 'A', nil
+	case char >= 'a' && char <= 'z':
+		return int32(char) - 'a' + 26, nil
+	case char >= '0' && char <= '9':
+		return int32(char) - '0' + 52, nil
+	case char == '+':
+		return 62, nil
+	case char == '/':
+		return 63, nil
+	}
+
+	return 0, fmt.Errorf("invalid base64 character: %s", []byte{char})
+}
+
 // eightBitsMax is a 8bit value of all binary 1s:
 //	- bin: 11111111
 //	- dec: 255
@@ -151,10 +168,15 @@ func Base64Decode(text []byte) ([]byte, error) {
 		// - looking up the appropriate index for the base64 character
 		// - bit shifting to the left, to pad least significant bits, so that they don't overlap
 		// - bit ORing to combine the values into one
-		combined := strings.IndexByte(decToBase64, text[i])<<18 |
-			strings.IndexByte(decToBase64, text[i+1])<<12 |
-			strings.IndexByte(decToBase64, text[i+2])<<6 |
-			strings.IndexByte(decToBase64, text[i+3])<<0
+		var combined int32
+		for offset, shift := range []uint{18, 12, 6, 0} {
+			v, err := base64ToDec(text[i+offset])
+			if err != nil {
+				return []byte{}, err
+			}
+
+			combined |= v << shift
+		}
 
 		// split the 24bit value into three 8bit values by:
 		// - bit shifting to the right, so the least significant 8bits are what we want
