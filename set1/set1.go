@@ -1,6 +1,7 @@
 package set1
 
 import (
+	"bytes"
 	"fmt"
 )
 
@@ -147,6 +148,8 @@ func base64ToDec(char byte) (int32, error) {
 		return 62, nil
 	case char == '/':
 		return 63, nil
+	case char == '=':
+		return 0, nil
 	}
 
 	return 0, fmt.Errorf("invalid base64 character: %s", []byte{char})
@@ -187,6 +190,9 @@ func Base64Decode(text []byte) ([]byte, error) {
 		out[outIndex+1] = byte(combined >> 8 & eightBitsMax)
 		out[outIndex+2] = byte(combined >> 0 & eightBitsMax)
 	}
+
+	// remove trailing padding
+	out = bytes.TrimRight(out, "\x00")
 
 	return out, nil
 }
