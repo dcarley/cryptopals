@@ -158,4 +158,14 @@ var _ = Describe("Set1", func() {
 			})
 		})
 	})
+
+	Describe("Challenge3", func() {
+		Describe("SolveSingleByteXOR", func() {
+			It("should convert example", func() {
+				text, err := SolveSingleByteXOR([]byte("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"))
+				Expect(err).ToNot(HaveOccurred())
+				Expect(text).To(Equal("FIXME"))
+			})
+		})
+	})
 })

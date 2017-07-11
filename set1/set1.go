@@ -230,3 +230,9 @@ func FixedKeyXOR(text, key []byte) ([]byte, error) {
 
 	return HexEncode(xor), nil
 }
+
+// SolveSingleByteXOR brutes forces hex encoded text against that has been
+// XORed against a single byte key.
+func SolveSingleByteXOR(text []byte) ([]byte, error) {
+	return []byte{}, nil
+}
