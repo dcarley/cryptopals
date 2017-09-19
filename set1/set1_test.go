@@ -146,6 +146,10 @@ var _ = Describe("Set1", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(xor).To(Equal([]byte("746865206b696420646f6e277420706c6179")))
+
+				plain, err := HexDecode(xor)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(plain).To(Equal([]byte("the kid don't play")))
 			})
 
 			It("should error on unequal lengths", func() {
