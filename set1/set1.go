@@ -3,6 +3,7 @@ package set1
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 )
 
 // decToHex is used to lookup a single hex value in decimal.
@@ -214,6 +215,12 @@ func FixedKeyXOR(text, key []byte) ([]byte, error) {
 		return []byte{}, fmt.Errorf("text and key must be same size: %d != %d", len(text), len(key))
 	}
 
+	return RepeatingKeyXOR(text, key)
+}
+
+// RepeatingKeyXOR encrypts some text against a repeating key of a smaller
+// size.
+func RepeatingKeyXOR(text, key []byte) ([]byte, error) {
 	textRaw, err := HexDecode(text)
 	if err != nil {
 		return []byte{}, err
@@ -223,16 +230,61 @@ func FixedKeyXOR(text, key []byte) ([]byte, error) {
 		return []byte{}, err
 	}
 
+	var keyIndex int
 	xor := make([]byte, len(textRaw))
 	for i := 0; i < len(xor); i++ {
-		xor[i] = textRaw[i] ^ keyRaw[i]
+		// repeat the beginning of the key if we've reached the end
+		if keyIndex >= len(keyRaw) {
+			keyIndex = 0
+		}
+
+		xor[i] = textRaw[i] ^ keyRaw[keyIndex]
+		keyIndex++
 	}
 
 	return HexEncode(xor), nil
 }
 
-// SolveSingleByteXOR brutes forces hex encoded text against that has been
-// XORed against a single byte key.
-func SolveSingleByteXOR(text []byte) ([]byte, error) {
-	return []byte{}, nil
+// ScoreEnglish returns a score indicating the likelihood that a string
+// is comprised of English words by counting the most commonly occurring
+// letters in the English language.
+func ScoreEnglish(text []byte) int {
+	re := regexp.MustCompile("(?i)[ETAOIN SHRDLU]")
+	matches := re.FindAll(text, -1)
+
+	return len(matches)
+}
+
+// KeyScore can be used to keep track of the most likely key.
+type KeyScore struct {
+	Score int
+	Key   []byte
+}
+
+// BruteForceSingleByteXOR finds the single byte key that some hex encoded
+// text has been XORed against.
+func BruteForceSingleByteXOR(text []byte) ([]byte, error) {
+	var highestScore KeyScore
+
+	// try all printable ASCII characters
+	for char := byte(32); char <= byte(127); char++ {
+		key := HexEncode([]byte{char})
+		out, err := RepeatingKeyXOR(text, key)
+		if err != nil {
+			return []byte{}, err
+		}
+
+		plainOut, err := HexDecode(out)
+		if err != nil {
+			return []byte{}, err
+		}
+		if score := ScoreEnglish(plainOut); score > highestScore.Score {
+			highestScore = KeyScore{
+				Score: score,
+				Key:   key,
+			}
+		}
+	}
+
+	return highestScore.Key, nil
 }

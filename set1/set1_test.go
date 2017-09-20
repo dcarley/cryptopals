@@ -4,6 +4,7 @@ import (
 	. "github.com/dcarley/cryptopals/set1"
 
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
 	"encoding/base64"
@@ -164,12 +165,32 @@ var _ = Describe("Set1", func() {
 	})
 
 	Describe("Challenge3", func() {
-		Describe("SolveSingleByteXOR", func() {
+		Describe("BruteForceSingleByteXOR", func() {
 			It("should convert example", func() {
-				text, err := SolveSingleByteXOR([]byte("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"))
+				xor := []byte("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
+
+				key, err := BruteForceSingleByteXOR(xor)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(text).To(Equal("FIXME"))
+
+				text, err := RepeatingKeyXOR(xor, key)
+				Expect(err).ToNot(HaveOccurred())
+
+				plain, err := HexDecode(text)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(plain).To(Equal([]byte("Cooking MC's like a pound of bacon")))
 			})
 		})
+
+		DescribeTable("ScoreEnglish",
+			func(text []byte, score int) {
+				Expect(ScoreEnglish(text)).To(Equal(score))
+			},
+			Entry("repeated character", []byte("xxxxxxxxxxxxxxxxxxxxxxx"), 0),
+			Entry("pwgen 23 -y", []byte("qui1Chux(euZae9Ua3pooqu"), 13),
+			Entry("keyboard bashing", []byte("dgj lqn0[jr1n3ofe we[of w"), 12),
+			Entry("numbers only", []byte("01234567890123456789012"), 0),
+			Entry("proper English", []byte("I'm writing proper English"), 19),
+			Entry("real sentence", []byte("This is a real sentence"), 22),
+		)
 	})
 })
