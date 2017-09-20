@@ -141,16 +141,16 @@ var _ = Describe("Set1", func() {
 	Describe("Challenge2", func() {
 		Describe("FixedKeyXOR", func() {
 			It("should convert example", func() {
-				xor, err := FixedKeyXOR(
-					[]byte("1c0111001f010100061a024b53535009181c"),
-					[]byte("686974207468652062756c6c277320657965"),
-				)
+				xor1, err := HexDecode([]byte("1c0111001f010100061a024b53535009181c"))
 				Expect(err).ToNot(HaveOccurred())
-				Expect(xor).To(Equal([]byte("746865206b696420646f6e277420706c6179")))
+				xor2, err := HexDecode([]byte("686974207468652062756c6c277320657965"))
+				Expect(err).ToNot(HaveOccurred())
 
-				plain, err := HexDecode(xor)
+				xor, err := FixedKeyXOR(xor1, xor2)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(plain).To(Equal([]byte("the kid don't play")))
+				Expect(xor).To(Equal([]byte("the kid don't play")))
+
+				Expect(HexEncode(xor)).To(Equal([]byte("746865206b696420646f6e277420706c6179")))
 			})
 
 			It("should error on unequal lengths", func() {
@@ -167,17 +167,15 @@ var _ = Describe("Set1", func() {
 	Describe("Challenge3", func() {
 		Describe("BruteForceSingleByteXOR", func() {
 			It("should convert example", func() {
-				xor := []byte("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
+				xor, err := HexDecode([]byte("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"))
+				Expect(err).ToNot(HaveOccurred())
 
 				key, err := BruteForceSingleByteXOR(xor)
 				Expect(err).ToNot(HaveOccurred())
 
 				text, err := RepeatingKeyXOR(xor, key)
 				Expect(err).ToNot(HaveOccurred())
-
-				plain, err := HexDecode(text)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(plain).To(Equal([]byte("Cooking MC's like a pound of bacon")))
+				Expect(text).To(Equal([]byte("Cooking MC's like a pound of bacon")))
 			})
 		})
 

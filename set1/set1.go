@@ -208,8 +208,7 @@ func HexToBase64(text []byte) ([]byte, error) {
 	return Base64Encode(raw), nil
 }
 
-// FixedKeyXOR encrypts some text against a key of the same size. All inputs
-// and outputs are hex encoded.
+// FixedKeyXOR encrypts some text against a key of the same size.
 func FixedKeyXOR(text, key []byte) ([]byte, error) {
 	if len(text) != len(key) {
 		return []byte{}, fmt.Errorf("text and key must be same size: %d != %d", len(text), len(key))
@@ -221,28 +220,19 @@ func FixedKeyXOR(text, key []byte) ([]byte, error) {
 // RepeatingKeyXOR encrypts some text against a repeating key of a smaller
 // size.
 func RepeatingKeyXOR(text, key []byte) ([]byte, error) {
-	textRaw, err := HexDecode(text)
-	if err != nil {
-		return []byte{}, err
-	}
-	keyRaw, err := HexDecode(key)
-	if err != nil {
-		return []byte{}, err
-	}
-
 	var keyIndex int
-	xor := make([]byte, len(textRaw))
+	xor := make([]byte, len(text))
 	for i := 0; i < len(xor); i++ {
 		// repeat the beginning of the key if we've reached the end
-		if keyIndex >= len(keyRaw) {
+		if keyIndex >= len(key) {
 			keyIndex = 0
 		}
 
-		xor[i] = textRaw[i] ^ keyRaw[keyIndex]
+		xor[i] = text[i] ^ key[keyIndex]
 		keyIndex++
 	}
 
-	return HexEncode(xor), nil
+	return xor, nil
 }
 
 // ScoreEnglish returns a score indicating the likelihood that a string
@@ -261,27 +251,22 @@ type KeyScore struct {
 	Key   []byte
 }
 
-// BruteForceSingleByteXOR finds the single byte key that some hex encoded
-// text has been XORed against.
+// BruteForceSingleByteXOR finds the single byte key that some text has been
+// XORed against.
 func BruteForceSingleByteXOR(text []byte) ([]byte, error) {
 	var highestScore KeyScore
 
 	// try all printable ASCII characters
-	for char := byte(32); char <= byte(127); char++ {
-		key := HexEncode([]byte{char})
-		out, err := RepeatingKeyXOR(text, key)
+	for key := byte(32); key <= byte(127); key++ {
+		out, err := RepeatingKeyXOR(text, []byte{key})
 		if err != nil {
 			return []byte{}, err
 		}
 
-		plainOut, err := HexDecode(out)
-		if err != nil {
-			return []byte{}, err
-		}
-		if score := ScoreEnglish(plainOut); score > highestScore.Score {
+		if score := ScoreEnglish(out); score > highestScore.Score {
 			highestScore = KeyScore{
 				Score: score,
-				Key:   key,
+				Key:   []byte{key},
 			}
 		}
 	}
