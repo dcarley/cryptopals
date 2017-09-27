@@ -170,12 +170,9 @@ var _ = Describe("Set1", func() {
 				xor, err := HexDecode([]byte("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"))
 				Expect(err).ToNot(HaveOccurred())
 
-				key, err := BruteForceSingleByteXOR(xor)
+				score, err := BruteForceSingleByteXOR(xor)
 				Expect(err).ToNot(HaveOccurred())
-
-				text, err := RepeatingKeyXOR(xor, key)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(text).To(Equal([]byte("Cooking MC's like a pound of bacon")))
+				Expect(score.Text).To(Equal([]byte("Cooking MC's like a pound of bacon")))
 			})
 		})
 

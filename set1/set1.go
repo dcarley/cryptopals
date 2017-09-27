@@ -247,29 +247,30 @@ func ScoreEnglish(text []byte) int {
 
 // KeyScore can be used to keep track of the most likely key.
 type KeyScore struct {
-	Score int
-	Key   []byte
+	Score     int
+	Key, Text []byte
 }
 
 // BruteForceSingleByteXOR finds the single byte key that some text has been
 // XORed against.
-func BruteForceSingleByteXOR(text []byte) ([]byte, error) {
+func BruteForceSingleByteXOR(text []byte) (KeyScore, error) {
 	var highestScore KeyScore
 
 	// try all printable ASCII characters
 	for key := byte(32); key <= byte(127); key++ {
 		out, err := RepeatingKeyXOR(text, []byte{key})
 		if err != nil {
-			return []byte{}, err
+			return highestScore, err
 		}
 
 		if score := ScoreEnglish(out); score > highestScore.Score {
 			highestScore = KeyScore{
 				Score: score,
 				Key:   []byte{key},
+				Text:  out,
 			}
 		}
 	}
 
-	return highestScore.Key, nil
+	return highestScore, nil
 }
