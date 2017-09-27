@@ -193,28 +193,26 @@ var _ = Describe("Set1", func() {
 	})
 
 	Describe("Challenge4", func() {
-		Describe("DetectSingleByteXOR", func() {
-			It("should solve example", func() {
-				file, err := os.Open("fixtures/s1c4")
+		It("should solve example", func() {
+			file, err := os.Open("fixtures/s1c4")
+			Expect(err).ToNot(HaveOccurred())
+			defer file.Close()
+
+			highestScore := KeyScore{}
+			scanner := bufio.NewScanner(file)
+			for scanner.Scan() {
+				text, err := HexDecode(scanner.Bytes())
 				Expect(err).ToNot(HaveOccurred())
-				defer file.Close()
 
-				highestScore := KeyScore{}
-				scanner := bufio.NewScanner(file)
-				for scanner.Scan() {
-					text, err := HexDecode(scanner.Bytes())
-					Expect(err).ToNot(HaveOccurred())
+				score, err := BruteForceSingleByteXOR(text)
+				Expect(err).ToNot(HaveOccurred())
 
-					score, err := BruteForceSingleByteXOR(text)
-					Expect(err).ToNot(HaveOccurred())
-
-					if score.Score > highestScore.Score {
-						highestScore = score
-					}
+				if score.Score > highestScore.Score {
+					highestScore = score
 				}
+			}
 
-				Expect(highestScore.Text).To(Equal([]byte("Now that the party is jumping\n")))
-			})
+			Expect(highestScore.Text).To(Equal([]byte("Now that the party is jumping\n")))
 		})
 	})
 })
