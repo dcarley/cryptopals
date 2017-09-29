@@ -300,8 +300,13 @@ func HammingDistance(one, two []byte) (int, error) {
 
 	var dist int
 	for i := 0; i < len(one); i++ {
-		if one[i] != two[i] {
-			dist++
+		// find bits that differ
+		charXOR := one[i] ^ two[i]
+		// select each bit from right to left
+		for mask := 1; mask <= 128; mask *= 2 {
+			if (charXOR & byte(mask)) > 0 {
+				dist++
+			}
 		}
 	}
 
