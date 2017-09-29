@@ -274,3 +274,15 @@ func BruteForceSingleByteXOR(text []byte) (KeyScore, error) {
 
 	return highestScore, nil
 }
+
+// HammingDistance returns the number of differences between two byte
+// slices: https://en.wikipedia.org/wiki/Hamming_distance
+func HammingDistance(one, two []byte) (int, error) {
+	return 0, nil
+}
+
+// BruteForceMultiByteXOR finds the multi byte key that some text has been
+// XORed against.
+func BruteForceMultiByteXOR(text []byte) (KeyScore, error) {
+	return KeyScore{}, nil
+}

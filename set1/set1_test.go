@@ -2,6 +2,7 @@ package set1_test
 
 import (
 	"bufio"
+	"io/ioutil"
 	"os"
 
 	. "github.com/dcarley/cryptopals/set1"
@@ -225,6 +226,37 @@ I go crazy when I hear a cymbal`),
 			)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(HexEncode(output)).To(Equal([]byte("0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f")))
+		})
+	})
+
+	Describe("Challenge6", func() {
+		Describe("BruteForceMultiByteXOR", func() {
+			It("should solve example", func() {
+				file, err := os.Open("fixtures/s1c6")
+				Expect(err).ToNot(HaveOccurred())
+				defer file.Close()
+
+				b64, err := ioutil.ReadAll(file)
+				Expect(err).ToNot(HaveOccurred())
+				xor, err := Base64Decode(b64)
+				Expect(err).ToNot(HaveOccurred())
+
+				score, err := BruteForceMultiByteXOR(xor)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(score.Text).To(Equal([]byte("FIXME")))
+			})
+		})
+
+		Describe("HammingDistance", func() {
+			It("should solve example", func() {
+				distance, err := HammingDistance(
+					[]byte("this is a test"),
+					[]byte("wokka wokka!!!"),
+				)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(distance).To(Equal(37))
+			})
 		})
 	})
 })
