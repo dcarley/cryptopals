@@ -2,6 +2,7 @@ package set1_test
 
 import (
 	"bufio"
+	"bytes"
 	"io/ioutil"
 	"os"
 
@@ -97,6 +98,25 @@ var _ = Describe("Set1", func() {
 
 				encoded := make([]byte, base64.StdEncoding.EncodedLen(len(input)))
 				base64.StdEncoding.Encode(encoded, input)
+
+				decoded, err := Base64Decode(encoded)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(decoded).To(Equal(input))
+			})
+
+			It("should decode base64 to text with newlines", func() {
+				input := []byte("hello gopher")
+
+				encoded := make([]byte, base64.StdEncoding.EncodedLen(len(input)))
+				base64.StdEncoding.Encode(encoded, input)
+
+				var encodedNewlines bytes.Buffer
+				for i := 0; i < len(encoded); i += 2 {
+					encodedNewlines.Write(encoded[i : i+2])
+					encodedNewlines.WriteByte('\n')
+				}
+				encoded = encodedNewlines.Bytes()
+				Expect(bytes.Count(encoded, []byte{byte('\n')})).To(BeNumerically(">", 4))
 
 				decoded, err := Base64Decode(encoded)
 				Expect(err).ToNot(HaveOccurred())

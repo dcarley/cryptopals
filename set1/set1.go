@@ -156,6 +156,20 @@ func base64ToDec(char byte) (int32, error) {
 	return 0, fmt.Errorf("invalid base64 character: %s", []byte{char})
 }
 
+// StripBytes removes all occurrences of a byte from a byte slice.
+func StripBytes(s []byte, c byte) []byte {
+	for {
+		i := bytes.IndexByte(s, c)
+		if i == -1 {
+			break
+		}
+
+		s = append(s[:i], s[i+1:]...)
+	}
+
+	return s
+}
+
 // eightBitsMax is a 8bit value of all binary 1s:
 //	- bin: 11111111
 //	- dec: 255
@@ -164,6 +178,8 @@ const eightBitsMax = 0xFF
 
 // Base64Decode decodes a base64 byte slice into an byte slice
 func Base64Decode(text []byte) ([]byte, error) {
+	text = StripBytes(text, '\n')
+
 	// 4 bytes out for every 3 bytes in
 	out := make([]byte, len(text)/4*3)
 
