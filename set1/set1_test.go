@@ -277,6 +277,12 @@ I go crazy when I hear a cymbal`),
 				Expect(err).ToNot(HaveOccurred())
 				Expect(distance).To(Equal(37))
 			})
+
+			It("should return an error if lengths don't match", func() {
+				distance, err := HammingDistance([]byte("a"), []byte("bb"))
+				Expect(err).To(MatchError("inputs must be same length: 1 != 2"))
+				Expect(distance).To(Equal(0))
+			})
 		})
 	})
 })

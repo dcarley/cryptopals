@@ -294,7 +294,18 @@ func BruteForceSingleByteXOR(text []byte) (KeyScore, error) {
 // HammingDistance returns the number of differences between two byte
 // slices: https://en.wikipedia.org/wiki/Hamming_distance
 func HammingDistance(one, two []byte) (int, error) {
-	return 0, nil
+	if len(one) != len(two) {
+		return 0, fmt.Errorf("inputs must be same length: %d != %d", len(one), len(two))
+	}
+
+	var dist int
+	for i := 0; i < len(one); i++ {
+		if one[i] != two[i] {
+			dist++
+		}
+	}
+
+	return dist, nil
 }
 
 // BruteForceMultiByteXOR finds the multi byte key that some text has been
