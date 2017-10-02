@@ -369,5 +369,38 @@ func GuessXORKeySize(text []byte) ([]int, error) {
 // BruteForceMultiByteXOR finds the multi byte key that some text has been
 // XORed against.
 func BruteForceMultiByteXOR(text []byte) (KeyScore, error) {
-	return KeyScore{}, nil
+	keySizes, err := GuessXORKeySize(text)
+	if err != nil {
+		return KeyScore{}, err
+	}
+
+	highestScore := KeyScore{}
+	for _, keySize := range keySizes {
+		key := make([]byte, keySize)
+		keyBlocks := TransposeBlocks(text, keySize)
+
+		for i := 0; i < keySize; i++ {
+			score, err := BruteForceSingleByteXOR(keyBlocks[i])
+			if err != nil {
+				return KeyScore{}, err
+			}
+
+			key[i] = score.Key[0]
+		}
+
+		out, err := RepeatingKeyXOR(text, key)
+		if err != nil {
+			return KeyScore{}, err
+		}
+
+		if score := ScoreEnglish(out); score > highestScore.Score {
+			highestScore = KeyScore{
+				Score: score,
+				Key:   key,
+				Text:  out,
+			}
+		}
+	}
+
+	return highestScore, nil
 }
