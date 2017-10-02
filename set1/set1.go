@@ -13,7 +13,7 @@ var decToHex = [16]byte{
 	'a', 'b', 'c', 'd', 'e', 'f',
 }
 
-// Encodes a decimal byte slice to a hexidecimal byte slice
+// Encodes a decimal byte slice to a hexadecimal byte slice
 func HexEncode(text []byte) []byte {
 	// output is always twice the size of input
 	out := make([]byte, len(text)*2)
@@ -50,7 +50,7 @@ func hexToDec(char byte) (byte, error) {
 	return val, nil
 }
 
-// HexDecode decodes a hexidecimal byte slice to a decimal byte slice
+// HexDecode decodes a hexadecimal byte slice to a decimal byte slice
 func HexDecode(text []byte) ([]byte, error) {
 	if len(text)%2 != 0 {
 		return []byte{}, fmt.Errorf("input must be an even size")
@@ -215,7 +215,7 @@ func Base64Decode(text []byte) ([]byte, error) {
 	return out, nil
 }
 
-// HexToBase64 converts hexidecimal encoded text to base64.
+// HexToBase64 converts hexadecimal encoded text to base64.
 func HexToBase64(text []byte) ([]byte, error) {
 	raw, err := HexDecode(text)
 	if err != nil {
