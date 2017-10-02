@@ -313,6 +313,18 @@ func HammingDistance(one, two []byte) (int, error) {
 	return dist, nil
 }
 
+// TransposeBlocks divides the input into blocks of size and returns a slice
+// of byte slices, the first containining the first byte from each block,
+// the second containing the second byte for each block, etc.
+func TransposeBlocks(in []byte, size int) [][]byte {
+	out := make([][]byte, size)
+	for i := 0; i < len(in); i++ {
+		out[i%size] = append(out[i%size], in[i])
+	}
+
+	return out
+}
+
 // BruteForceMultiByteXOR finds the multi byte key that some text has been
 // XORed against.
 func BruteForceMultiByteXOR(text []byte) (KeyScore, error) {

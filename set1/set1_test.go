@@ -284,5 +284,33 @@ I go crazy when I hear a cymbal`),
 				Expect(distance).To(Equal(0))
 			})
 		})
+
+		DescribeTable("TransposeBlocks",
+			func(size int, expected [][]byte) {
+				Expect(
+					TransposeBlocks([]byte("abcdefghijklmnopqsrtuvwxyz"), size),
+				).To(
+					Equal(expected),
+				)
+			},
+			Entry("block size of 3", 3, [][]byte{
+				[]byte("adgjmprvy"),
+				[]byte("behknqtwz"),
+				[]byte("cfilosux"),
+			}),
+			Entry("block size of 4", 4, [][]byte{
+				[]byte("aeimquy"),
+				[]byte("bfjnsvz"),
+				[]byte("cgkorw"),
+				[]byte("dhlptx"),
+			}),
+			Entry("block size of 5", 5, [][]byte{
+				[]byte("afkpuz"),
+				[]byte("bglqv"),
+				[]byte("chmsw"),
+				[]byte("dinrx"),
+				[]byte("ejoty"),
+			}),
+		)
 	})
 })
