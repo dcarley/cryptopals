@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"regexp"
+	"sort"
 )
 
 // decToHex is used to lookup a single hex value in decimal.
@@ -323,6 +324,46 @@ func TransposeBlocks(in []byte, size int) [][]byte {
 	}
 
 	return out
+}
+
+// KeySize can be used to keep track of the most likely key size.
+type KeySize struct {
+	Size               int
+	NoramlisedDistance float64
+}
+
+// GuessXORKeySize guesses the most likely key size for some XORed text. The
+// results are sorted in order of probability.
+func GuessXORKeySize(text []byte) ([]int, error) {
+	const (
+		guesses = 4
+		minSize = 2
+		maxSize = 40
+	)
+
+	keySizes := make([]KeySize, maxSize+1-minSize)
+	for keySize := minSize; keySize <= maxSize; keySize++ {
+		distance, err := HammingDistance(text[:keySize], text[keySize:keySize*2])
+		if err != nil {
+			return []int{}, err
+		}
+
+		keySizes[keySize-minSize] = KeySize{
+			Size:               keySize,
+			NoramlisedDistance: float64(distance) / float64(keySize),
+		}
+	}
+
+	sort.Slice(keySizes, func(i, j int) bool {
+		return keySizes[i].NoramlisedDistance < keySizes[j].NoramlisedDistance
+	})
+
+	lowest := make([]int, guesses)
+	for i := range lowest {
+		lowest[i] = keySizes[i].Size
+	}
+
+	return lowest, nil
 }
 
 // BruteForceMultiByteXOR finds the multi byte key that some text has been
