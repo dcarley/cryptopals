@@ -336,21 +336,33 @@ type KeySize struct {
 // results are sorted in order of probability.
 func GuessXORKeySize(text []byte) ([]int, error) {
 	const (
-		guesses = 4
-		minSize = 2
-		maxSize = 40
+		attempts = 10 // how many blocks to compare for each key size
+		guesses  = 4  // how many guesses to return
+		minSize  = 2  // minimum key size
+		maxSize  = 40 // maximum key size
 	)
 
 	keySizes := make([]KeySize, maxSize+1-minSize)
 	for keySize := minSize; keySize <= maxSize; keySize++ {
-		distance, err := HammingDistance(text[:keySize], text[keySize:keySize*2])
-		if err != nil {
-			return []int{}, err
+		var keyDistance int
+		for i := 0; i <= attempts; i++ {
+			var (
+				lower  = keySize * i
+				middle = keySize*i + keySize
+				upper  = keySize*i + keySize*2
+			)
+
+			blockDistance, err := HammingDistance(text[lower:middle], text[middle:upper])
+			if err != nil {
+				return []int{}, err
+			}
+
+			keyDistance += blockDistance
 		}
 
 		keySizes[keySize-minSize] = KeySize{
 			Size:               keySize,
-			NoramlisedDistance: float64(distance) / float64(keySize),
+			NoramlisedDistance: float64(keyDistance) / float64(keySize),
 		}
 	}
 
@@ -358,6 +370,7 @@ func GuessXORKeySize(text []byte) ([]int, error) {
 		return keySizes[i].NoramlisedDistance < keySizes[j].NoramlisedDistance
 	})
 
+	// lowest normalied hamming distance is most likely to be the correct size
 	lowest := make([]int, guesses)
 	for i := range lowest {
 		lowest[i] = keySizes[i].Size

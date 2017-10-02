@@ -263,7 +263,7 @@ I go crazy when I hear a cymbal`),
 
 				score, err := BruteForceMultiByteXOR(xor)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(score.Key).To(Equal([]byte("FIXME")))
+				Expect(score.Key).To(Equal([]byte("Terminator X: Bring the noise")))
 			})
 		})
 
