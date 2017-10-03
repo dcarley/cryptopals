@@ -2,6 +2,7 @@ package set1
 
 import (
 	"bytes"
+	"crypto/aes"
 	"fmt"
 	"regexp"
 	"sort"
@@ -416,4 +417,21 @@ func BruteForceMultiByteXOR(text []byte) (KeyScore, error) {
 	}
 
 	return highestScore, nil
+}
+
+// DecryptAESECB decrypts some text that has been encrypted with AES in ECB
+// mode.
+func DecryptAESECB(text, key []byte) ([]byte, error) {
+	ciph, err := aes.NewCipher(key)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	blockSize := ciph.BlockSize()
+	for i := 0; i < len(text); i += blockSize {
+		// decrypt only does one block at a time.
+		ciph.Decrypt(text[i:i+blockSize], text[i:i+blockSize])
+	}
+
+	return text, nil
 }

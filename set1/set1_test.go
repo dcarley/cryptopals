@@ -321,4 +321,33 @@ I go crazy when I hear a cymbal`),
 			}),
 		)
 	})
+
+	Describe("Challenge7", func() {
+		Describe("DecryptAESECB", func() {
+			It("should solve example", func() {
+				inFile, err := os.Open("fixtures/s1c7")
+				Expect(err).ToNot(HaveOccurred())
+				defer inFile.Close()
+
+				b64, err := ioutil.ReadAll(inFile)
+				Expect(err).ToNot(HaveOccurred())
+				out, err := Base64Decode(b64)
+				Expect(err).ToNot(HaveOccurred())
+
+				out, err = DecryptAESECB(out, []byte("YELLOW SUBMARINE"))
+				Expect(err).ToNot(HaveOccurred())
+
+				// Fixture generated using:
+				// openssl enc -aes-128-ecb -d -base64 -in s1c7 -nosalt \
+				//		-K "$(echo -n 'YELLOW SUBMARINE' | xxd -p)" > s1c7.plain
+				plainFile, err := os.Open("fixtures/s1c7.plain")
+				Expect(err).ToNot(HaveOccurred())
+				defer plainFile.Close()
+
+				plain, err := ioutil.ReadAll(plainFile)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(out).To(Equal(plain))
+			})
+		})
+	})
 })
