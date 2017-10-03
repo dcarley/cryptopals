@@ -252,11 +252,11 @@ I go crazy when I hear a cymbal`),
 	Describe("Challenge6", func() {
 		Describe("BruteForceMultiByteXOR", func() {
 			It("should solve example", func() {
-				file, err := os.Open("fixtures/s1c6")
+				inFile, err := os.Open("fixtures/s1c6")
 				Expect(err).ToNot(HaveOccurred())
-				defer file.Close()
+				defer inFile.Close()
 
-				b64, err := ioutil.ReadAll(file)
+				b64, err := ioutil.ReadAll(inFile)
 				Expect(err).ToNot(HaveOccurred())
 				xor, err := Base64Decode(b64)
 				Expect(err).ToNot(HaveOccurred())
@@ -264,6 +264,14 @@ I go crazy when I hear a cymbal`),
 				score, err := BruteForceMultiByteXOR(xor)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(score.Key).To(Equal([]byte("Terminator X: Bring the noise")))
+
+				plainFile, err := os.Open("fixtures/s1c6.plain")
+				Expect(err).ToNot(HaveOccurred())
+				defer plainFile.Close()
+
+				plain, err := ioutil.ReadAll(plainFile)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(score.Text).To(Equal(plain))
 			})
 		})
 
