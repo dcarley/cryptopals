@@ -419,6 +419,26 @@ func BruteForceMultiByteXOR(text []byte) (KeyScore, error) {
 	return highestScore, nil
 }
 
+// StripPadding removes PKCS#7 padding.
+func StripPadding(text []byte, blockSize int) []byte {
+	// last byte may contain the amount of padding
+	padLength := int(text[len(text)-1 : len(text)][0])
+	if padLength > blockSize {
+		// no padding
+		return text
+	}
+
+	for i := len(text) - 1; i >= len(text)-padLength; i-- {
+		if int(text[i]) != padLength {
+			// padding incorrect, but don't indicate so because:
+			// https://en.wikipedia.org/wiki/Padding_oracle_attack
+			return text
+		}
+	}
+
+	return text[:len(text)-padLength]
+}
+
 // DecryptAESECB decrypts some text that has been encrypted with AES in ECB
 // mode.
 func DecryptAESECB(text, key []byte) ([]byte, error) {
@@ -433,5 +453,5 @@ func DecryptAESECB(text, key []byte) ([]byte, error) {
 		ciph.Decrypt(text[i:i+blockSize], text[i:i+blockSize])
 	}
 
-	return text, nil
+	return StripPadding(text, blockSize), nil
 }

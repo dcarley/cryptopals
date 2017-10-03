@@ -349,5 +349,46 @@ I go crazy when I hear a cymbal`),
 				Expect(out).To(Equal(plain))
 			})
 		})
+
+		DescribeTable("StripPadding",
+			func(in, out []byte) {
+				const blockSize = 16
+				Expect(StripPadding(in, blockSize)).To(Equal(out))
+			},
+			Entry("strips valid padding of 4 bytes",
+				[]byte{104, 101, 108, 108, 111, 32, 103, 111, 112, 104, 101, 114, 4, 4, 4, 4},
+				[]byte{104, 101, 108, 108, 111, 32, 103, 111, 112, 104, 101, 114},
+			),
+			Entry("strips valid padding of 3 bytes",
+				[]byte{104, 101, 108, 108, 111, 32, 103, 111, 112, 104, 101, 114, 3, 3, 3},
+				[]byte{104, 101, 108, 108, 111, 32, 103, 111, 112, 104, 101, 114},
+			),
+			Entry("strips valid padding as far as possible",
+				[]byte{104, 101, 108, 108, 111, 32, 103, 111, 112, 104, 101, 114, 2, 2, 2},
+				[]byte{104, 101, 108, 108, 111, 32, 103, 111, 112, 104, 101, 114, 2},
+			),
+			Entry("doesn't strip when there is no padding",
+				[]byte{104, 101, 108, 108, 111, 32, 103, 111, 112, 104, 101, 114},
+				[]byte{104, 101, 108, 108, 111, 32, 103, 111, 112, 104, 101, 114},
+			),
+			Entry("doesn't strip invalid padding when value doesn't match count",
+				[]byte{104, 101, 108, 108, 111, 32, 103, 111, 112, 104, 101, 114, 3, 4, 4, 4},
+				[]byte{104, 101, 108, 108, 111, 32, 103, 111, 112, 104, 101, 114, 3, 4, 4, 4},
+			),
+			Entry("doesn't strip invalid padding when value is greater than block size",
+				[]byte{
+					104, 101, 108, 108, 111, 32, 103, 111,
+					112, 104, 101, 114, 20, 20, 20, 20,
+					20, 20, 20, 20, 20, 20, 20, 20,
+					20, 20, 20, 20, 20, 20, 20, 20,
+				},
+				[]byte{
+					104, 101, 108, 108, 111, 32, 103, 111,
+					112, 104, 101, 114, 20, 20, 20, 20,
+					20, 20, 20, 20, 20, 20, 20, 20,
+					20, 20, 20, 20, 20, 20, 20, 20,
+				},
+			),
+		)
 	})
 })
