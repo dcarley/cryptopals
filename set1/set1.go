@@ -455,3 +455,24 @@ func DecryptAESECB(text, key []byte) ([]byte, error) {
 
 	return StripPadding(text, blockSize), nil
 }
+
+// DetectECB detects whether a byte slice has been encrypted in ECB mode by
+// seeing if it has repeating blocks of data.
+func DetectECB(text []byte) bool {
+	const blockSize = 16
+
+	blockMap := make(map[[blockSize]byte]int, len(text)/blockSize)
+	for i := 0; i < len(text); i += blockSize {
+		var key [blockSize]byte
+		copy(key[:], text[i:i+blockSize])
+		blockMap[key]++
+	}
+
+	for _, count := range blockMap {
+		if count > 1 {
+			return true
+		}
+	}
+
+	return false
+}
