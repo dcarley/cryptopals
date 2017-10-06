@@ -1,4 +1,4 @@
-package set1_test
+package cryptopals_test
 
 import (
 	"bufio"
@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	. "github.com/dcarley/cryptopals/set1"
+	. "github.com/dcarley/cryptopals"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"

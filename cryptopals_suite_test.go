@@ -1,4 +1,4 @@
-package set1_test
+package cryptopals_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestSet1(t *testing.T) {
+func TestCryptopals(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Set1 Suite")
+	RunSpecs(t, "Cryptopals Suite")
 }
