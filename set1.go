@@ -419,8 +419,9 @@ func BruteForceMultiByteXOR(text []byte) (KeyScore, error) {
 	return highestScore, nil
 }
 
-// StripPadding removes PKCS#7 padding.
-func StripPadding(text []byte, blockSize int) []byte {
+// PKCS7PaddingStrip strips PKCS#7 padding from a byte slice.
+// https://en.wikipedia.org/wiki/Padding_(cryptography)#PKCS7
+func PKCS7PaddingStrip(text []byte, blockSize int) []byte {
 	// last byte may contain the amount of padding
 	padLength := int(text[len(text)-1 : len(text)][0])
 	if padLength > blockSize {
@@ -453,7 +454,7 @@ func DecryptAESECB(text, key []byte) ([]byte, error) {
 		ciph.Decrypt(text[i:i+blockSize], text[i:i+blockSize])
 	}
 
-	return StripPadding(text, blockSize), nil
+	return PKCS7PaddingStrip(text, blockSize), nil
 }
 
 // DetectECB detects whether a byte slice has been encrypted in ECB mode by

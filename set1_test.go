@@ -350,10 +350,10 @@ I go crazy when I hear a cymbal`),
 			})
 		})
 
-		DescribeTable("StripPadding",
+		DescribeTable("PKCS7PaddingStrip",
 			func(in, out []byte) {
 				const blockSize = 16
-				Expect(StripPadding(in, blockSize)).To(Equal(out))
+				Expect(PKCS7PaddingStrip(in, blockSize)).To(Equal(out))
 			},
 			Entry("strips valid padding of 4 bytes",
 				[]byte{104, 101, 108, 108, 111, 32, 103, 111, 112, 104, 101, 114, 4, 4, 4, 4},
